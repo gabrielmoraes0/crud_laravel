@@ -69,5 +69,31 @@ class UserController extends Controller
         }
     }
     
+    public function update(UserRequest $request, User $user)
+    {
+        DB::beginTransaction();
+        try{
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => bcrypt($request->password),
+            ]);
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Usuário atualizado com sucesso',
+            ], 200);
+        }
+        catch(Exception $e){
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Erro ao atualizar usuário',
+                'error' => $e->getMessage(),
+            ], 400);
+        }
+    }
 }
+
 
